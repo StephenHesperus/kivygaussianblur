@@ -10,9 +10,9 @@ def rgba(s, *args):
         if len(s) == 3:
             return s + [1]
         return s
-    elif isinstance(s, (int, float)):
-        s = tuple(x / 255. for x in (s, ) + args[:-1]) + args[-1:]
-        if len(s) == 3:
-            return s + (1, )
-        return s
+    elif isinstance(s, int):
+        if len(args) == 2: # rgb
+            return [x / 255. for x in (s, *args)] + [1]
+        else:
+            return [x / 255. for x in (s, *args)[:-1]] + args[-1:]
     raise Exception('Invalid value (not a string / list / tuple)')
