@@ -7,7 +7,7 @@ Config.set('kivy', 'keyboard_mode', 'system')
 
 from kivy.app import App
 #  from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
 
@@ -20,7 +20,7 @@ class ImageButton(ButtonBehavior, Image):
     pass
 
 
-class GaussianBlurWindow(BoxLayout):
+class GaussianBlurWindow(ScreenManager):
 
     pass
 
