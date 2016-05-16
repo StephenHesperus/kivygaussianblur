@@ -1,0 +1,116 @@
+#: import rgba utils.rgba
+
+
+<Toolbar@RelativeLayout, ControlPanel@BoxLayout>:
+    size_hint: 1, None
+    height: '64dp'
+    canvas:
+        Color:
+            rgba: rgba(224, 224, 224)
+        Rectangle:
+            size: self.size
+
+<CPLabel@Label>:
+    color: 0, 0, 0, .87
+    size: self.texture_size
+    size_hint: None, 1
+    padding_x: '8dp'
+
+<GaussianBlurWindow>:
+    orientation: 'vertical'
+    canvas:
+        Color:
+            rgba: rgba(250, 250, 250)
+        Rectangle:
+            size: self.size
+
+    Toolbar:
+        Label:
+            text: 'Gaussian Blur App'
+            font_size: '20sp'
+            bold: True
+            color: 0, 0, 0, .87
+            text_size: self.size
+            valign: 'middle'
+            padding_x: '32dp'
+
+        AnchorLayout:
+            anchor_x: 'right'
+            anchor_y: 'center'
+            padding: 0, 0, '16dp', 0
+
+            ImageButton:
+                source: './images/save.png'
+                color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
+                size: 42, 42
+                size_hint: None, None
+
+    RelativeLayout:
+        canvas:
+            Color:
+                rgb: 1, 0, 1
+            Rectangle:
+                size: self.size
+
+        Image:
+            source: './images/folder.png'
+
+    ProgressBar:
+        id: progress
+        value: 50.
+        size_hint: 1, None
+        height: '4dp'
+
+    ControlPanel:
+        padding: '8dp', 0, '8dp', 0
+
+        CPLabel:
+            text: 'Radius'
+
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba: 1, 0, 1, 0
+                Rectangle:
+                    size: self.size
+
+            Slider:
+                id: radius_slider
+                range: 0, 1000
+                step: .1
+                value: 1.
+                size_hint: 1, 1
+
+            TextInput:
+                id: radius_input
+                text: '%.1f' % radius_slider.value
+                input_type: 'number'
+                input_filter: 'float'
+                multiline: False
+                on_focus: if not args[1]: radius_slider.value = max(0, min(float(self.text or 0), 1000))
+                foreground_color: 0, 0, 0, .87
+                cursor_color: 0, 0, 0, .87
+                selection_color: 0, 0, 0, .54
+                size_hint: None, 1
+                width: '88dp'
+                padding: '16dp', '20dp', '16dp', '25dp'
+                halign: 'center'
+                background_normal: ''
+                background_active: ''
+                background_color: 0, 0, 0, 0
+                canvas.before:
+                    Color:
+                        rgba: (0, 0, 0, .54) if self.focus else (0, 0, 0, .54)
+                    Line:
+                        points: (self.x + 14, 16, self.x + self.width - 20, 16)
+                        width: 2 if self.focus else 1
+                        cap: 'none'
+
+            CheckBox:
+                background_checkbox_normal: './images/checkbox_outline.png'
+                background_checkbox_down: './images/checkbox.png'
+                width: '48dp'
+                size_hint: None, 1
+
+        CPLabel:
+            text: 'Alpha'
