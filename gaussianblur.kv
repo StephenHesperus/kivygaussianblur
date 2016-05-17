@@ -17,7 +17,27 @@
     size_hint: None, 1
     padding_x: '8dp'
 
+<ImageFileChooser@Popup>:
+    id: imfc
+    title: 'Choose an image to apply gaussian blur'
+    content: dialog
+    size_hint: 0.8, 0.8
+    background_color: 0, 0, 0, 0
+    background: './images/card-padding-l67-t52-r69-b83.png'
+    title_color: 0, 0, 0, .87
+    # canvas:
+        # Color:
+            # rgb: 1, 1, 1
+        # Rectangle:
+            # size: self.size
+
+    BoxLayout:
+        id: dialog
+        Label:
+            text: 'Hello World'
+
 <InitScreen@Screen>:
+    id: init
     name: 'init'
     canvas:
         Color:
@@ -46,13 +66,16 @@
                 canvas.before:
                     Color:
                         rgba: rgba(189, 189, 189) if self.state == 'normal' else rgba(158, 158, 158)
-                    Ellipse:
+                    Rectangle:
+                        source: './images/folder_open_bg.png'
                         size: 192, 192
                         pos: self.center_x - 192/2, self.center_y - 192/2
 
-                source: './images/folder.png'
+                source: './images/folder.png' if self.state == 'normal' else './images/folder_open.png'
                 color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
-                on_release: root.manager.current = 'blur'
+                size_hint: None, None
+                size: '192dp', '192dp'
+                on_release: init.on_folder_open_click()
 
 <GaussianBlurScreen@Screen>:
     name: 'blur'
@@ -172,7 +195,5 @@
 <GaussianBlurWindow>:
     transition: SlideTransition()
 
-    GaussianBlurScreen:
-
     InitScreen:
-
+    GaussianBlurScreen:
