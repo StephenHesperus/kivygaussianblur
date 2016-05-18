@@ -120,7 +120,6 @@
             path: expanduser('~')
             show_hidden: True
             filters: ['*.png', '*.jpg', '*.jpeg', '*.gif']
-            on_selection: print(self.selection)
 
 <GaussianBlurScreen@Screen>:
     name: 'blur'
@@ -131,19 +130,14 @@
             size: self.size
 
     RelativeLayout:
-        # orientation: 'vertical'
-
         ScatterLayout:
             id: scatter
             size_hint: 1, 1
             auto_bring_to_front: False
-            on_bring_to_front: print(self, self.parent)
 
             Image:
                 id: im
-                source: root.manager.image
-            Label:
-                text: str(self.parent.size)
+                source: root.manager.image.path
 
         Toolbar:
             id: toolbar
@@ -193,57 +187,56 @@
             CPLabel:
                 text: 'Radius'
 
-            BoxLayout:
-                canvas:
+            Slider:
+                id: radius_slider
+                range: 0, 1000
+                step: .1
+                value: 0.
+                size_hint: 1, 1
+
+            TextInput:
+                id: radius_input
+                text: '%.1f' % radius_slider.value
+                input_type: 'number'
+                input_filter: 'float'
+                multiline: False
+                on_focus: if not args[1]: radius_slider.value = max(0, min(float(self.text or 0), 1000))
+                foreground_color: 0, 0, 0, .87
+                cursor_color: 0, 0, 0, .87
+                selection_color: 0, 0, 0, .54
+                size_hint: None, 1
+                width: '88dp'
+                padding: '16dp', '20dp', '16dp', '25dp'
+                halign: 'center'
+                background_normal: ''
+                background_active: ''
+                background_color: 0, 0, 0, 0
+                canvas.before:
                     Color:
-                        rgba: 1, 0, 1, 0
-                    Rectangle:
-                        size: self.size
+                        rgba: (0, 0, 0, .54) if self.focus else (0, 0, 0, .54)
+                    Line:
+                        points: (self.x + 14, 16, self.x + self.width - 20, 16)
+                        width: 2 if self.focus else 1
+                        cap: 'none'
 
-                Slider:
-                    id: radius_slider
-                    range: 0, 1000
-                    step: .1
-                    value: 1.
-                    size_hint: 1, 1
-
-                TextInput:
-                    id: radius_input
-                    text: '%.1f' % radius_slider.value
-                    input_type: 'number'
-                    input_filter: 'float'
-                    multiline: False
-                    on_focus: if not args[1]: radius_slider.value = max(0, min(float(self.text or 0), 1000))
-                    foreground_color: 0, 0, 0, .87
-                    cursor_color: 0, 0, 0, .87
-                    selection_color: 0, 0, 0, .54
-                    size_hint: None, 1
-                    width: '88dp'
-                    padding: '16dp', '20dp', '16dp', '25dp'
-                    halign: 'center'
-                    background_normal: ''
-                    background_active: ''
-                    background_color: 0, 0, 0, 0
-                    canvas.before:
-                        Color:
-                            rgba: (0, 0, 0, .54) if self.focus else (0, 0, 0, .54)
-                        Line:
-                            points: (self.x + 14, 16, self.x + self.width - 20, 16)
-                            width: 2 if self.focus else 1
-                            cap: 'none'
-
-                CheckBox:
-                    background_checkbox_normal: './images/checkbox_outline.png'
-                    background_checkbox_down: './images/checkbox.png'
-                    width: '48dp'
-                    size_hint: None, 1
+            CheckBox:
+                id: alpha
+                background_checkbox_normal: './images/checkbox_outline.png'
+                background_checkbox_down: './images/checkbox.png'
+                background_checkbox_disabled_normal: './images/transparent.png'
+                background_checkbox_disabled_down: './images/transparent.png'
+                active: True
+                disabled: not root.manager.image.has_alpha
+                width: '48dp'
+                size_hint: None, 1
 
             CPLabel:
                 text: 'Alpha'
+                color: (0, 0, 0, 0) if alpha.disabled else (0, 0, 0, .87)
 
 <GaussianBlurWindow>:
     transition: SlideTransition()
 
-    ImageChooserScreen:
     InitScreen:
+    ImageChooserScreen:
     GaussianBlurScreen:

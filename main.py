@@ -10,8 +10,11 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
-from kivy.properties import ObjectProperty
 from kivy.properties import BooleanProperty
+from kivy.properties import DictProperty
+
+import cv2 as cv
+import numpy as np
 
 
 #  Builder.load_file('./textinputs.kv')
@@ -24,10 +27,15 @@ class ImageButton(ButtonBehavior, Image):
 
 class GaussianBlurWindow(ScreenManager):
 
-    image = ObjectProperty()
+    image = DictProperty({
+            'path': '',
+            'has_alpha': False,
+        }, rebind=True)
 
     def on_choose_file(self, imfile):
-        self.image = imfile
+        self.image.path = imfile
+        im = np.float64(cv.imread(imfile, -1))
+        self.image.has_alpha = im.shape[-1] == 4
         self.current = 'blur'
 
 
