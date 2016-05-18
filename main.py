@@ -10,9 +10,8 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
-from kivy.uix.screenmanager import Screen
-from kivy.uix.popup import Popup
-from kivy.uix.boxlayout import BoxLayout
+from kivy.properties import ObjectProperty
+from kivy.properties import BooleanProperty
 
 
 #  Builder.load_file('./textinputs.kv')
@@ -20,33 +19,16 @@ from kivy.uix.boxlayout import BoxLayout
 
 class ImageButton(ButtonBehavior, Image):
 
-    pass
-
-
-class ImageFileChooser(Popup):
-
-    pass
-
-
-class Dialog(BoxLayout):
-
-    pass
-
-
-class InitScreen(Screen):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.popup = ImageFileChooser()
-
-    def on_folder_open_click(self, *args):
-        self.popup.open()
-        self.manager.current = 'blur'
+    disabled = BooleanProperty(False)
 
 
 class GaussianBlurWindow(ScreenManager):
 
-    pass
+    image = ObjectProperty()
+
+    def on_choose_file(self, imfile):
+        self.image = imfile
+        self.current = 'blur'
 
 
 class GaussianBlurApp(App):

@@ -1,3 +1,6 @@
+from kivy.utils import get_color_from_hex
+
+
 def rgba(s, *args):
     '''
     Return a kivy color (4 value from 0-1 range) from either a hex string or a
@@ -14,5 +17,5 @@ def rgba(s, *args):
         if len(args) == 2: # rgb
             return [x / 255. for x in (s, *args)] + [1]
         else:
-            return [x / 255. for x in (s, *args)[:-1]] + args[-1:]
+            return [x / 255. for x in (s, *args)[:-1]] + [args[-1]]
     raise Exception('Invalid value (not a string / list / tuple)')

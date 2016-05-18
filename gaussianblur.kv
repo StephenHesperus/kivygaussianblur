@@ -1,5 +1,6 @@
 #: import rgba utils.rgba
 #: import SlideTransition kivy.uix.screenmanager.SlideTransition
+#: import expanduser os.path.expanduser
 
 
 <Toolbar@RelativeLayout, ControlPanel@BoxLayout>:
@@ -11,39 +12,30 @@
         Rectangle:
             size: self.size
 
+<DarkToolbar@RelativeLayout>:
+    size_hint: 1, None
+    height: '64dp'
+    canvas:
+        Color:
+            rgba: rgba('212121')
+        Rectangle:
+            size: self.size
+
 <CPLabel@Label>:
     color: 0, 0, 0, .87
     size: self.texture_size
     size_hint: None, 1
     padding_x: '8dp'
 
-<ImageFileChooser@Popup>:
-    id: imfc
-    title: 'Choose an image to apply gaussian blur'
-    content: dialog
-    size_hint: 0.8, 0.8
-    background_color: 0, 0, 0, 0
-    background: './images/card-padding-l67-t52-r69-b83.png'
-    title_color: 0, 0, 0, .87
-    # canvas:
-        # Color:
-            # rgb: 1, 1, 1
-        # Rectangle:
-            # size: self.size
-
-    BoxLayout:
-        id: dialog
-        Label:
-            text: 'Hello World'
-
 <InitScreen@Screen>:
     id: init
     name: 'init'
     canvas:
         Color:
-            rgba: rgba(250, 250, 250)
+            rgba: rgba('fafafa')
         Rectangle:
             size: self.size
+
 
     BoxLayout:
         orientation: 'vertical'
@@ -67,7 +59,7 @@
                     Color:
                         rgba: rgba(189, 189, 189) if self.state == 'normal' else rgba(158, 158, 158)
                     Rectangle:
-                        source: './images/folder_open_bg.png'
+                        source: './images/folder_bg.png'
                         size: 192, 192
                         pos: self.center_x - 192/2, self.center_y - 192/2
 
@@ -75,21 +67,87 @@
                 color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
                 size_hint: None, None
                 size: '192dp', '192dp'
-                on_release: init.on_folder_open_click()
+                on_release: root.manager.current = 'image_chooser'
 
-<GaussianBlurScreen@Screen>:
-    name: 'blur'
-    orientation: 'vertical'
+<ImageChooserScreen@Screen>:
+    name: 'image_chooser'
     canvas:
         Color:
-            rgba: rgba(250, 250, 250)
+            rgba: rgba('424242')
         Rectangle:
             size: self.size
 
     BoxLayout:
         orientation: 'vertical'
 
+        DarkToolbar:
+            Label:
+                text: 'Choose An Image to Blur'
+                font_size: '20sp'
+                bold: True
+                color: 1, 1, 1, 1
+                text_size: self.size
+                valign: 'middle'
+                padding_x: '32dp'
+
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'center'
+                padding: 0, 0, '16dp', 0
+
+                BoxLayout:
+                    size: '92dp', '42dp'
+                    size_hint: None, None
+                    spacing: '8dp'
+
+                    ImageButton:
+                        source: './images/clear.png'
+                        color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
+                        size: '42dp', '42dp'
+                        size_hint: None, None
+                        on_release: root.manager.current = 'init'
+
+                    ImageButton:
+                        source: './images/done.png'
+                        color: (1, 1, 1, .0) if self.disabled else ((1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1))
+                        size: '42dp', '42dp'
+                        size_hint: None, None
+                        disabled: not chooser.selection
+                        on_release: root.manager.on_choose_file(chooser.selection[0])
+
+        FileChooserListView:
+            id: chooser
+            path: expanduser('~')
+            show_hidden: True
+            filters: ['*.png', '*.jpg', '*.jpeg', '*.gif']
+            on_selection: print(self.selection)
+
+<GaussianBlurScreen@Screen>:
+    name: 'blur'
+    canvas:
+        Color:
+            rgba: rgba('fafafa')
+        Rectangle:
+            size: self.size
+
+    RelativeLayout:
+        # orientation: 'vertical'
+
+        ScatterLayout:
+            id: scatter
+            size_hint: 1, 1
+            auto_bring_to_front: False
+            on_bring_to_front: print(self, self.parent)
+
+            Image:
+                id: im
+                source: root.manager.image
+            Label:
+                text: str(self.parent.size)
+
         Toolbar:
+            id: toolbar
+            pos: 0, str(scatter.height - 64) + 'dp'
             Label:
                 text: 'Gaussian Blur App'
                 font_size: '20sp'
@@ -122,16 +180,6 @@
                         size: '42dp', '42dp'
                         size_hint: None, None
 
-        RelativeLayout:
-            canvas:
-                Color:
-                    rgb: 1, 0, 1
-                Rectangle:
-                    size: self.size
-
-            Image:
-                source: './images/folder.png'
-
         ProgressBar:
             id: progress
             value: 50.
@@ -139,6 +187,7 @@
             height: '4dp'
 
         ControlPanel:
+            id: control_panel
             padding: '8dp', 0, '8dp', 0
 
             CPLabel:
@@ -195,5 +244,6 @@
 <GaussianBlurWindow>:
     transition: SlideTransition()
 
+    ImageChooserScreen:
     InitScreen:
     GaussianBlurScreen:
