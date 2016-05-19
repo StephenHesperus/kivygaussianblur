@@ -1,3 +1,5 @@
+from functools import partial
+
 from kivy.config import Config
 
 Config.set('graphics', 'width', 480)
@@ -61,7 +63,6 @@ class GaussianBlurWindow(ScreenManager):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.on_radius_change = Clock.create_trigger(self._radius_change, .15)
 
     def on_choose_file(self, imfile):
         self.prepare_texture(imfile)
@@ -69,8 +70,9 @@ class GaussianBlurWindow(ScreenManager):
         self.image.has_alpha = self.texture.colorfmt == 'bgra'
         self.current = 'blur'
 
-    def _radius_change(self, radius):
-        print('Changing radius slider to', radius)
+    def on_radius_change(self, radius):
+        Clock.unschedule(self.gaussian_blur)
+        Clock.schedule_once(partial(self.gaussian_blur, radius))
 
     def prepare_texture(self, imfile):
         im = np.float32(cv.imread(imfile, -1)) / 255
@@ -90,12 +92,18 @@ class GaussianBlurWindow(ScreenManager):
         self.texture.blit_buffer(self.imbuf, bufferfmt=self.texture.bufferfmt,
                                  colorfmt=self.texture.colorfmt)
 
-    def gaussian_blur(self, radius):
-        b0 = cv.GaussianBlur(self.im, (0, 0), radius)
-        if self.texture.colorfmt == 'bgra':
-            b = cv.merge([b0[..., :3] / b0[..., -1:], b0[..., -1:]])
+    def gaussian_blur(self, radius, *args):
+        '''
+        This method here is used as callback for Clock.schedule_once, hence the
+        ``*args`` parameter.
+        '''
+        if radius == 0:
+            b = self.im
         else:
-            b = b0
+            b = cv.GaussianBlur(self.im, (0, 0), radius)
+            if self.texture.colorfmt == 'bgra':
+                with np.errstate(invalid='ignore'):
+                    b = cv.merge([b[..., :3] / b[..., -1:], b[..., -1:]])
         self.imbuf = cv.flip(b, 0).reshape(-1)
         self.populate_texture()
 
@@ -143,8 +151,8 @@ class TextureImage(Image):
 class GaussianBlurApp(App):
 
     def build(self):
-        #  return GaussianBlurWindow()
-        return TextureImage()
+        return GaussianBlurWindow()
+        #  return TextureImage()
 
 
 if __name__ == '__main__':

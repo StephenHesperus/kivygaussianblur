@@ -203,7 +203,7 @@
                 input_type: 'number'
                 input_filter: 'float'
                 multiline: False
-                on_focus: if not args[1]: radius_slider.value = max(0, min(float(self.text or 0), 1000))
+                on_focus: if not args[1]: radius_slider.value = max(0, min(float(self.text or 0), 1000)) * 10
                 foreground_color: 0, 0, 0, .87
                 cursor_color: 0, 0, 0, .87
                 selection_color: 0, 0, 0, .54
