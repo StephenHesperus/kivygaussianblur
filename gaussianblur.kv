@@ -137,7 +137,8 @@
 
             Image:
                 id: im
-                source: root.manager.image.path
+                mipmap: True
+                texture: root.manager.image.texture
 
         Toolbar:
             id: toolbar
@@ -188,15 +189,17 @@
                 text: 'Radius'
 
             Slider:
+                # range is multiplied by 10
                 id: radius_slider
-                range: 0, 1000
-                step: .1
-                value: 0.
+                range: 0, 10000
+                step: 1
+                value: 0
+                on_value: root.manager.on_radius_change(self.value / 10)
                 size_hint: 1, 1
 
             TextInput:
                 id: radius_input
-                text: '%.1f' % radius_slider.value
+                text: '%.1f' % (radius_slider.value / 10)
                 input_type: 'number'
                 input_filter: 'float'
                 multiline: False
