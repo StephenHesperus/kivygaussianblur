@@ -59,9 +59,9 @@
                     Color:
                         rgba: rgba(189, 189, 189) if self.state == 'normal' else rgba(158, 158, 158)
                     Rectangle:
-                        source: './images/folder_bg.png'
-                        size: 192, 192
-                        pos: self.center_x - 192/2, self.center_y - 192/2
+                        source: './images/folder_open_bg.png'
+                        size: 198, 198
+                        pos: self.center_x - 198/2, self.center_y - 198/2
 
                 source: './images/folder.png' if self.state == 'normal' else './images/folder_open.png'
                 color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
