@@ -13,8 +13,10 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
+from kivy.uix.widget import Widget
 from kivy.properties import BooleanProperty
 from kivy.properties import DictProperty
+from kivy.properties import ListProperty
 from kivy.graphics.texture import Texture
 from kivy.graphics.transformation import Matrix
 from kivy.clock import Clock
@@ -48,7 +50,6 @@ def gaussian_blur(image, radius):
 
 #  Builder.load_file('./textinputs.kv')
 
-
 class ImageButton(ButtonBehavior, Image):
 
     disabled = BooleanProperty(False)
@@ -62,6 +63,7 @@ class GaussianBlurWindow(ScreenManager):
             'initial_radius': 0,
             'initial_matrix': Matrix(),
         }, rebind=True)
+    blurring = BooleanProperty(False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,17 +72,11 @@ class GaussianBlurWindow(ScreenManager):
 
     def on_image_choose(self, imfile):
         self.prepare_texture(imfile)
-
-        #  bscreen = self.get_screen('blur')
-        #  bscreen.ids.im.texture = self.texture
-        #  bscreen.ids.alpha.disabled = self.texture.colorfmt == 'bgra'
-        #  bscreen.ids.scatter.transform = Matrix()
         self.image.texture = self.texture
         self.image.has_alpha = self.texture.colorfmt == 'bgra'
         self.current = 'blur'
 
     def on_radius_change(self, radius):
-        # Show indeterminate indicator
         Clock.unschedule(self._last_cb)
         self._last_cb = partial(self._threaded_gaussian_blur, radius=radius)
         Clock.schedule_once(self._last_cb, .1)
@@ -88,7 +84,6 @@ class GaussianBlurWindow(ScreenManager):
     def _threaded_gaussian_blur(self, dt, radius):
         self._blur_thread = Thread(target=self.gaussian_blur, args=(radius, ))
         Clock.schedule_once(lambda dt: self._blur_thread.start(), .1)
-        #  print('_threaded_gaussian_blur', radius)
 
     def prepare_texture(self, imfile):
         im = np.float32(cv.imread(imfile, -1)) / 255
@@ -105,20 +100,21 @@ class GaussianBlurWindow(ScreenManager):
         self.populate_texture()
 
     @mainthread
+    def _set_blurring(self, blurring):
+        self.blurring = blurring
+
+    @mainthread
     def populate_texture(self):
-        #  print('populate_texture')
         self.texture.blit_buffer(self.imbuf, bufferfmt=self.texture.bufferfmt,
                                  colorfmt=self.texture.colorfmt)
         self.canvas.ask_update()
-        #  print('populate_texture [done]')
-        # Hide indeterminate indicator
 
     def gaussian_blur(self, radius, *args):
         '''
         This method here is used as callback for Clock.schedule_once, hence the
         ``*args`` parameter.
         '''
-        #  print('gaussian_blur', radius, *args)
+        self._set_blurring(True)
         if radius == 0:
             b = self.im
         else:
@@ -127,8 +123,8 @@ class GaussianBlurWindow(ScreenManager):
                 with np.errstate(invalid='ignore'):
                     b = cv.merge([b[..., :3] / b[..., -1:], b[..., -1:]])
         self.imbuf = cv.flip(b, 0).reshape(-1)
-        #  print('gaussian_blur [done]', radius)
         self.populate_texture()
+        self._set_blurring(False)
 
 
 from kivy.graphics import Color
@@ -200,6 +196,44 @@ class SliderCalculation(BoxLayout):
     def _calculate(self, radius, *args):
         time.sleep(1)
         print(radius)
+
+
+from kivy.graphics import Line
+from kivy.graphics import Ellipse
+from kivy.graphics.stencil_instructions import StencilPush
+from kivy.graphics.stencil_instructions import StencilPop
+from kivy.graphics.stencil_instructions import StencilUse
+from kivy.graphics.stencil_instructions import StencilUnUse
+from kivy.animation import AnimationTransition
+
+class Indicator(Widget):
+
+    color = ListProperty([0, 0, 0, .54])
+    reset = BooleanProperty(False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._tick = 0
+        self._progress = 0
+        self.bind(reset=self.on_reset)
+        Clock.schedule_interval(self.draw_indicator, .01)
+
+    def on_reset(self, indicator, reset):
+        if reset:
+            self._tick = 0
+            self._progress = 0
+
+    def draw_indicator(self, dt):
+        with self.canvas:
+            self.canvas.clear()
+
+            Color(*self.color)
+            Ellipse(pos=(self.center_x-32, self.center_y-32), size=(64, 64),
+                    source='./images/indicator.png',
+                    angle_end=self._progress)
+
+        self._tick = (self._tick + 1/60) % 1
+        self._progress = AnimationTransition.in_out_cubic(self._tick) * 360 % 361
 
 
 class GaussianBlurApp(App):

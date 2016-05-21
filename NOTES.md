@@ -3,4 +3,6 @@
 * When saving blurred image, use incremental numbering.
 * Implement save
 * Remove progress bar, use indicator
-* Set thread when schedule_once, if executing, schedule_once start
+* Custom slider
+* all image format support
+* Use widget opacity

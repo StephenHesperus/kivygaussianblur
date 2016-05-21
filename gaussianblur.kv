@@ -140,6 +140,12 @@
                 id: im
                 mipmap: True
                 texture: root.manager.image.texture
+                opacity: 0.1 if root.manager.blurring else 1
+
+            Indicator:
+                opacity: 1 if root.manager.blurring else 0
+                reset: not root.manager.blurring
+
 
         Toolbar:
             id: toolbar
