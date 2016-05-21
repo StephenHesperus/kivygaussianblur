@@ -1,4 +1,5 @@
 from functools import partial
+from threading import Thread
 
 from kivy.config import Config
 
@@ -15,9 +16,9 @@ from kivy.uix.image import Image
 from kivy.properties import BooleanProperty
 from kivy.properties import DictProperty
 from kivy.graphics.texture import Texture
-from kivy.graphics import Color
-from kivy.graphics import Rectangle
+from kivy.graphics.transformation import Matrix
 from kivy.clock import Clock
+from kivy.clock import mainthread
 
 import cv2 as cv
 import numpy as np
@@ -56,23 +57,38 @@ class ImageButton(ButtonBehavior, Image):
 class GaussianBlurWindow(ScreenManager):
 
     image = DictProperty({
-            'path': '',
+            'texture': None,
             'has_alpha': False,
-            'texture': None
+            'initial_radius': 0,
+            'initial_matrix': Matrix(),
         }, rebind=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._last_cb = None
+        self._blur_thread = None
 
-    def on_choose_file(self, imfile):
+    def on_image_choose(self, imfile):
         self.prepare_texture(imfile)
+
+        #  bscreen = self.get_screen('blur')
+        #  bscreen.ids.im.texture = self.texture
+        #  bscreen.ids.alpha.disabled = self.texture.colorfmt == 'bgra'
+        #  bscreen.ids.scatter.transform = Matrix()
         self.image.texture = self.texture
         self.image.has_alpha = self.texture.colorfmt == 'bgra'
         self.current = 'blur'
 
     def on_radius_change(self, radius):
-        Clock.unschedule(self.gaussian_blur)
-        Clock.schedule_once(partial(self.gaussian_blur, radius))
+        # Show indeterminate indicator
+        Clock.unschedule(self._last_cb)
+        self._last_cb = partial(self._threaded_gaussian_blur, radius=radius)
+        Clock.schedule_once(self._last_cb, .1)
+
+    def _threaded_gaussian_blur(self, dt, radius):
+        self._blur_thread = Thread(target=self.gaussian_blur, args=(radius, ))
+        Clock.schedule_once(lambda dt: self._blur_thread.start(), .1)
+        #  print('_threaded_gaussian_blur', radius)
 
     def prepare_texture(self, imfile):
         im = np.float32(cv.imread(imfile, -1)) / 255
@@ -88,15 +104,21 @@ class GaussianBlurWindow(ScreenManager):
         texture.add_reload_observer(self.populate_texture)
         self.populate_texture()
 
+    @mainthread
     def populate_texture(self):
+        #  print('populate_texture')
         self.texture.blit_buffer(self.imbuf, bufferfmt=self.texture.bufferfmt,
                                  colorfmt=self.texture.colorfmt)
+        self.canvas.ask_update()
+        #  print('populate_texture [done]')
+        # Hide indeterminate indicator
 
     def gaussian_blur(self, radius, *args):
         '''
         This method here is used as callback for Clock.schedule_once, hence the
         ``*args`` parameter.
         '''
+        #  print('gaussian_blur', radius, *args)
         if radius == 0:
             b = self.im
         else:
@@ -105,8 +127,12 @@ class GaussianBlurWindow(ScreenManager):
                 with np.errstate(invalid='ignore'):
                     b = cv.merge([b[..., :3] / b[..., -1:], b[..., -1:]])
         self.imbuf = cv.flip(b, 0).reshape(-1)
+        #  print('gaussian_blur [done]', radius)
         self.populate_texture()
 
+
+from kivy.graphics import Color
+from kivy.graphics import Rectangle
 
 class TextureImage(Image):
 
@@ -148,11 +174,40 @@ class TextureImage(Image):
         self.populate_texture()
 
 
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.textinput import TextInput
+from kivy.uix.slider import Slider
+import time
+
+class SliderCalculation(BoxLayout):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        text = TextInput(readonly=True)
+        slider = Slider(range=(0, 10000), step=1, size_hint=(1, None),
+                        height='64dp')
+        self.orientation = 'vertical'
+        self.add_widget(text)
+        self.add_widget(slider)
+        slider.bind(value=self.on_slider_value)
+        self._last_cb = None
+
+    def on_slider_value(self, slider, radius):
+        Clock.unschedule(self._last_cb)
+        self._last_cb = partial(self._calculate, radius)
+        Clock.schedule_once(self._last_cb, .1)
+
+    def _calculate(self, radius, *args):
+        time.sleep(1)
+        print(radius)
+
+
 class GaussianBlurApp(App):
 
     def build(self):
         return GaussianBlurWindow()
         #  return TextureImage()
+        #  return SliderCalculation()
 
 
 if __name__ == '__main__':

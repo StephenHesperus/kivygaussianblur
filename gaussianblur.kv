@@ -113,7 +113,7 @@
                         size: '42dp', '42dp'
                         size_hint: None, None
                         disabled: not chooser.selection
-                        on_release: root.manager.on_choose_file(chooser.selection[0])
+                        on_release: root.manager.on_image_choose(chooser.selection[0])
 
         FileChooserListView:
             id: chooser
@@ -134,6 +134,7 @@
             id: scatter
             size_hint: 1, 1
             auto_bring_to_front: False
+            transform: root.manager.image.initial_matrix
 
             Image:
                 id: im
@@ -193,7 +194,7 @@
                 id: radius_slider
                 range: 0, 10000
                 step: 1
-                value: 0
+                value: root.manager.image.initial_radius
                 on_value: root.manager.on_radius_change(self.value / 10)
                 size_hint: 1, 1
 
