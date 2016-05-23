@@ -236,6 +236,7 @@
                 background_checkbox_disabled_normal: './images/transparent.png'
                 background_checkbox_disabled_down: './images/transparent.png'
                 active: True
+                on_active: root.manager.use_alpha = self.active; root.manager.on_radius_change(radius_slider.value / 10)
                 disabled: not root.manager.image.has_alpha
                 width: '48dp'
                 size_hint: None, 1

@@ -64,6 +64,7 @@ class GaussianBlurWindow(ScreenManager):
             'initial_matrix': Matrix(),
         }, rebind=True)
     blurring = BooleanProperty(False)
+    use_alpha = BooleanProperty(True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -119,7 +120,7 @@ class GaussianBlurWindow(ScreenManager):
             b = self.im
         else:
             b = cv.GaussianBlur(self.im, (0, 0), radius)
-            if self.texture.colorfmt == 'bgra':
+            if self.texture.colorfmt == 'bgra' and self.use_alpha:
                 with np.errstate(invalid='ignore'):
                     b = cv.merge([b[..., :3] / b[..., -1:], b[..., -1:]])
         self.imbuf = cv.flip(b, 0).reshape(-1)
