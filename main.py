@@ -140,7 +140,9 @@ class GaussianBlurWindow(ScreenManager):
         alpha = ('.alpha_%s' % ('on' if self.use_alpha else 'off')
                  if self.image.has_alpha else '')
         fn = f + '.gaussian_blur.raidus_%.1f' % self.radius + alpha + e
-        cv.imwrite(fn, self.blur*255)
+        cv.imwrite(fn, self.blur*255,
+                   (cv.IMWRITE_JPEG_QUALITY, 100,
+                    cv.IMWRITE_PNG_COMPRESSION, 9))
         self.saving = False
 
 
