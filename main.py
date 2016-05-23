@@ -103,6 +103,8 @@ class GaussianBlurWindow(ScreenManager):
                                  bufferfmt='float')
         buf = cv.flip(im, 0).reshape(-1)
 
+        self.radius = 0
+        self.blur = im
         self.im = im
         self.imbuf = buf
         self.texture = texture

@@ -82,7 +82,24 @@
                 color: 0, 0, 0, .87
                 text_size: self.size
                 valign: 'middle'
-                padding_x: '32dp'
+                padding_x: '24dp'
+
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'center'
+                padding: 0, 0, '16dp', 0
+
+                BoxLayout:
+                    size: '24dp', '24dp'
+                    size_hint: None, None
+                    spacing: '8dp'
+
+                    ImageButton:
+                        source: './images/info.png'
+                        color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
+                        size: '24dp', '24dp'
+                        size_hint: None, None
+                        on_release: root.manager.current = 'info'
 
         AnchorLayout:
             anchor_x: 'center'
@@ -122,7 +139,7 @@
                 color: 1, 1, 1, 1
                 text_size: self.size
                 valign: 'middle'
-                padding_x: '32dp'
+                padding_x: '24dp'
 
             AnchorLayout:
                 anchor_x: 'right'
@@ -130,14 +147,14 @@
                 padding: 0, 0, '16dp', 0
 
                 BoxLayout:
-                    size: '92dp', '42dp'
                     size_hint: None, None
-                    spacing: '8dp'
+                    size: '64dp', '24dp'
+                    spacing: '16dp'
 
                     ImageButton:
                         source: './images/clear.png'
                         color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
-                        size: '42dp', '42dp'
+                        size: '24dp', '24dp'
                         size_hint: None, None
                         on_release: root.manager.current = 'init'
 
@@ -147,7 +164,7 @@
                         disabled: not chooser.selection
                         opacity: 0 if self.disabled else 1
                         on_release: root.manager.on_image_choose(chooser.selection[0])
-                        size: '42dp', '42dp'
+                        size: '24dp', '24dp'
                         size_hint: None, None
 
         FileChooserListView:
@@ -191,7 +208,7 @@
                 color: 0, 0, 0, .87
                 text_size: self.size
                 valign: 'middle'
-                padding_x: '32dp'
+                padding_x: '24dp'
 
             AnchorLayout:
                 anchor_x: 'right'
@@ -199,23 +216,23 @@
                 padding: 0, 0, '16dp', 0
 
                 BoxLayout:
-                    size: '92dp', '42dp'
+                    size: '64dp', '24dp'
                     size_hint: None, None
-                    spacing: '8dp'
+                    spacing: '16dp'
 
                     ImageButton:
                         source: './images/cancel.png'
                         color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
-                        size: '42dp', '42dp'
+                        size: '24dp', '24dp'
                         size_hint: None, None
-                        on_release: root.manager.current = 'init'
+                        on_release: root.manager.image.texture = None; root.manager.current = 'init'
 
                     ImageButton:
                         source: './images/save.png'
                         color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
                         opacity: 0 if root.manager.saving else 1
                         on_release: root.manager.save()
-                        size: '42dp', '42dp'
+                        size: '24dp', '24dp'
                         size_hint: None, None
 
         ControlPanel:
@@ -273,9 +290,47 @@
                 text: 'Alpha'
                 opacity: 0 if alpha.disabled else 1
 
+<InfoScreen@Screen>:
+    id: info
+    name: 'info'
+    canvas:
+        Color:
+            rgba: rgba('fafafa')
+        Rectangle:
+            size: self.size
+
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        Toolbar:
+            Label:
+                text: 'About'
+                font_size: '20sp'
+                bold: True
+                color: 0, 0, 0, .87
+                text_size: self.size
+                valign: 'middle'
+                padding_x: '56dp'
+
+            AnchorLayout:
+                anchor_x: 'left'
+                anchor_y: 'center'
+                padding: '16dp', 0, 0, 0
+                ImageButton:
+                    source: './images/back.png'
+                    color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
+                    size: '24dp', '24dp'
+                    size_hint: None, None
+                    on_release: root.manager.current = 'init'
+
+        RstDocument:
+            source: './data/about.rst'
+
 <GaussianBlurWindow>:
     transition: SlideTransition()
 
     InitScreen:
     ImageChooserScreen:
     GaussianBlurScreen:
+    InfoScreen:
