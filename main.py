@@ -24,9 +24,12 @@ from kivy.graphics.texture import Texture
 from kivy.graphics.transformation import Matrix
 from kivy.clock import Clock
 from kivy.clock import mainthread
+from kivy.animation import Animation
 
 import cv2 as cv
 import numpy as np
+
+from utils import rgba
 
 
 def gaussian_blur(image, radius):
@@ -225,9 +228,9 @@ from kivy.graphics.stencil_instructions import StencilUse
 from kivy.graphics.stencil_instructions import StencilUnUse
 from kivy.animation import AnimationTransition
 
-class Indicator(Widget):
+class Indicator1(Widget):
 
-    color = ListProperty([0, 0, 0, .54])
+    color = ListProperty(rgba('9e9e9e'))
     reset = BooleanProperty(False)
 
     def __init__(self, *args, **kwargs):
@@ -249,10 +252,25 @@ class Indicator(Widget):
             Color(*self.color)
             Ellipse(pos=(self.center_x-32, self.center_y-32), size=(64, 64),
                     source='./images/indicator.png',
-                    angle_end=self._progress)
+                    angle_start=self._progress,
+                    angle_end=360-self._progress)
 
-        self._tick = (self._tick + 1/60) % 1
-        self._progress = AnimationTransition.in_out_cubic(self._tick) * 360 % 361
+        self._tick = (self._tick + 1/15) % 1
+        self._progress = AnimationTransition.in_out_cubic(self._tick) * 30 % 31
+
+
+from kivy.properties import NumericProperty
+
+class Indicator(Image):
+
+    angle = NumericProperty(0)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        anim = Animation(angle=-360, d=1, t='in_out_cubic')
+        anim += Animation(angle=0, d=0)
+        anim.repeat = True
+        anim.start(self)
 
 
 class GaussianBlurApp(App):

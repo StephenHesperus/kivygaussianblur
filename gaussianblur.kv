@@ -1,6 +1,7 @@
-#: import rgba utils.rgba
-#: import SlideTransition kivy.uix.screenmanager.SlideTransition
 #: import expanduser os.path.expanduser
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+#: import Animation kivy.animation.Animation
+#: import rgba utils.rgba
 
 
 <Toolbar@RelativeLayout, ControlPanel@BoxLayout>:
@@ -26,6 +27,16 @@
     size: self.texture_size
     size_hint: None, 1
     padding_x: '8dp'
+
+<Indicator>:
+    source: './images/indicator.png'
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.angle % 360
+            origin: self.center
+    canvas.after:
+        PopMatrix
 
 <InitScreen@Screen>:
     id: init
@@ -146,7 +157,6 @@
             Indicator:
                 opacity: 1 if root.manager.blurring else 0
                 reset: not root.manager.blurring
-
 
         Toolbar:
             id: toolbar
