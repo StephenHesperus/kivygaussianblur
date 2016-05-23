@@ -60,8 +60,8 @@
                         rgba: rgba(189, 189, 189) if self.state == 'normal' else rgba(158, 158, 158)
                     Rectangle:
                         source: './images/folder_open_bg.png'
-                        size: 198, 198
-                        pos: self.center_x - 198/2, self.center_y - 198/2
+                        size: 192, 192
+                        pos: self.center_x - 192/2, self.center_y - 192/2
 
                 source: './images/folder.png' if self.state == 'normal' else './images/folder_open.png'
                 color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
@@ -109,11 +109,12 @@
 
                     ImageButton:
                         source: './images/done.png'
-                        color: (1, 1, 1, .0) if self.disabled else ((1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1))
+                        color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
+                        disabled: not chooser.selection
+                        opacity: 0 if self.disabled else 1
+                        on_release: root.manager.on_image_choose(chooser.selection[0])
                         size: '42dp', '42dp'
                         size_hint: None, None
-                        disabled: not chooser.selection
-                        on_release: root.manager.on_image_choose(chooser.selection[0])
 
         FileChooserListView:
             id: chooser
@@ -182,12 +183,6 @@
                         size: '42dp', '42dp'
                         size_hint: None, None
 
-        ProgressBar:
-            id: progress
-            value: 50.
-            size_hint: 1, None
-            height: '4dp'
-
         ControlPanel:
             id: control_panel
             padding: '8dp', 0, '8dp', 0
@@ -233,17 +228,16 @@
                 id: alpha
                 background_checkbox_normal: './images/checkbox_outline.png'
                 background_checkbox_down: './images/checkbox.png'
-                background_checkbox_disabled_normal: './images/transparent.png'
-                background_checkbox_disabled_down: './images/transparent.png'
+                disabled: not root.manager.image.has_alpha
+                opacity: 0 if self.disabled else 1
                 active: True
                 on_active: root.manager.use_alpha = self.active; root.manager.on_radius_change(radius_slider.value / 10)
-                disabled: not root.manager.image.has_alpha
                 width: '48dp'
                 size_hint: None, 1
 
             CPLabel:
                 text: 'Alpha'
-                color: (0, 0, 0, 0) if alpha.disabled else (0, 0, 0, .87)
+                opacity: 0 if alpha.disabled else 1
 
 <GaussianBlurWindow>:
     transition: SlideTransition()

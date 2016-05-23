@@ -5,4 +5,3 @@
 * Custom slider
 * all image format support
 * Use widget opacity
-* Fix folder open bg
