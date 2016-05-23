@@ -4,4 +4,3 @@
 * Implement save
 * Custom slider
 * all image format support
-* Use widget opacity

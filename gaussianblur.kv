@@ -180,6 +180,8 @@
                     ImageButton:
                         source: './images/save.png'
                         color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
+                        opacity: 0 if root.manager.saving else 1
+                        on_release: root.manager.save()
                         size: '42dp', '42dp'
                         size_hint: None, None
 

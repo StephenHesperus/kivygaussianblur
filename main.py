@@ -1,5 +1,8 @@
+#  import glob
+
 from functools import partial
 from threading import Thread
+from os import path
 
 from kivy.config import Config
 
@@ -65,6 +68,7 @@ class GaussianBlurWindow(ScreenManager):
         }, rebind=True)
     blurring = BooleanProperty(False)
     use_alpha = BooleanProperty(True)
+    saving = BooleanProperty(False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,12 +76,14 @@ class GaussianBlurWindow(ScreenManager):
         self._blur_thread = None
 
     def on_image_choose(self, imfile):
+        self.imfile = imfile
         self.prepare_texture(imfile)
         self.image.texture = self.texture
         self.image.has_alpha = self.texture.colorfmt == 'bgra'
         self.current = 'blur'
 
     def on_radius_change(self, radius):
+        self.radius = radius
         Clock.unschedule(self._last_cb)
         self._last_cb = partial(self._threaded_gaussian_blur, radius=radius)
         Clock.schedule_once(self._last_cb, .1)
@@ -121,11 +127,21 @@ class GaussianBlurWindow(ScreenManager):
         else:
             b = cv.GaussianBlur(self.im, (0, 0), radius)
             if self.texture.colorfmt == 'bgra' and self.use_alpha:
-                with np.errstate(invalid='ignore'):
+                with np.errstate(divide='ignore', invalid='ignore'):
                     b = cv.merge([b[..., :3] / b[..., -1:], b[..., -1:]])
+        self.blur = b
         self.imbuf = cv.flip(b, 0).reshape(-1)
         self.populate_texture()
         self._set_blurring(False)
+
+    def save(self):
+        self.saving = True
+        f, e = path.splitext(self.imfile)
+        alpha = ('.alpha_%s' % ('on' if self.use_alpha else 'off')
+                 if self.image.has_alpha else '')
+        fn = f + '.gaussian_blur.raidus_%.1f' % self.radius + alpha + e
+        cv.imwrite(fn, self.blur*255)
+        self.saving = False
 
 
 from kivy.graphics import Color
