@@ -38,6 +38,29 @@
     canvas.after:
         PopMatrix
 
+<-Slider>:
+    canvas:
+        # Track off
+        Color:
+            # rgba: 0, 0, 0, .38
+            rgba: rgba('bdbdbd')
+        Rectangle:
+            size: self.width - self.padding * 2, sp(2)
+            pos: self.x + self.padding, self.center_y - sp(1)
+        # Track on
+        Color:
+            rgba: rgba('757575')
+        Rectangle:
+            size: self.value_pos[0] - self.padding - self.x, sp(2)
+            pos: self.x + self.padding, self.center_y - sp(1)
+        # Thumb
+        Color:
+            rgba: rgba('757575')
+        Rectangle:
+            size: sp(24), sp(24)
+            pos: self.value_pos[0] - sp(12), self.center_y - sp(12)
+            source: './images/slider_thumb.png'
+
 <InitScreen@Screen>:
     id: init
     name: 'init'
@@ -209,7 +232,6 @@
                 step: 1
                 value: root.manager.image.initial_radius
                 on_value: root.manager.on_radius_change(self.value / 10)
-                size_hint: 1, 1
 
             TextInput:
                 id: radius_input
