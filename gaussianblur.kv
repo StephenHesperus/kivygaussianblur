@@ -29,7 +29,7 @@
     padding_x: '8dp'
 
 <Indicator>:
-    source: './images/indicator.png'
+    source: 'atlas://images/theme/indicator'
     canvas.before:
         PushMatrix
         Rotate:
@@ -59,7 +59,7 @@
         Rectangle:
             size: sp(24), sp(24)
             pos: self.value_pos[0] - sp(12), self.center_y - sp(12)
-            source: './images/slider_thumb.png'
+            source: 'atlas://images/theme/slider_thumb'
 
 <InitScreen@Screen>:
     id: init
@@ -95,7 +95,7 @@
                     spacing: '8dp'
 
                     ImageButton:
-                        source: './images/info.png'
+                        source: 'atlas://images/theme/info'
                         color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
                         size: '24dp', '24dp'
                         size_hint: None, None
@@ -110,11 +110,11 @@
                     Color:
                         rgba: rgba(189, 189, 189) if self.state == 'normal' else rgba(158, 158, 158)
                     Rectangle:
-                        source: './images/folder_open_bg.png'
+                        source: 'atlas://images/theme/folder_open_bg'
                         size: 192, 192
                         pos: self.center_x - 192/2, self.center_y - 192/2
 
-                source: './images/folder.png' if self.state == 'normal' else './images/folder_open.png'
+                source: 'atlas://images/theme/folder' if self.state == 'normal' else 'atlas://images/theme/folder_open'
                 color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
                 size_hint: None, None
                 size: '192dp', '192dp'
@@ -152,14 +152,14 @@
                     spacing: '16dp'
 
                     ImageButton:
-                        source: './images/clear.png'
+                        source: 'atlas://images/theme/clear'
                         color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
                         size: '24dp', '24dp'
                         size_hint: None, None
                         on_release: root.manager.current = 'init'
 
                     ImageButton:
-                        source: './images/done.png'
+                        source: 'atlas://images/theme/done'
                         color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
                         disabled: not chooser.selection
                         opacity: 0 if self.disabled else 1
@@ -221,14 +221,14 @@
                     spacing: '16dp'
 
                     ImageButton:
-                        source: './images/cancel.png'
+                        source: 'atlas://images/theme/cancel'
                         color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
                         size: '24dp', '24dp'
                         size_hint: None, None
                         on_release: root.manager.image.texture = None; root.manager.current = 'init'
 
                     ImageButton:
-                        source: './images/save.png'
+                        source: 'atlas://images/theme/save'
                         color: (0, 0, 0, .38) if self.state == 'normal' else (0, 0, 0, .54)
                         opacity: 0 if root.manager.saving else 1
                         on_release: root.manager.save()
@@ -277,8 +277,8 @@
 
             CheckBox:
                 id: alpha
-                background_checkbox_normal: './images/checkbox_outline.png'
-                background_checkbox_down: './images/checkbox.png'
+                background_checkbox_normal: 'atlas://images/theme/checkbox_outline'
+                background_checkbox_down: 'atlas://images/theme/checkbox'
                 disabled: not root.manager.image.has_alpha
                 opacity: 0 if self.disabled else 1
                 active: True
@@ -318,7 +318,7 @@
                 anchor_y: 'center'
                 padding: '16dp', 0, 0, 0
                 ImageButton:
-                    source: './images/back.png'
+                    source: 'atlas://images/theme/back'
                     color: (1, 1, 1, .5) if self.state == 'normal' else (1, 1, 1)
                     size: '24dp', '24dp'
                     size_hint: None, None
