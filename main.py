@@ -93,7 +93,10 @@ class GaussianBlurWindow(ScreenManager):
 
     def _threaded_gaussian_blur(self, dt, radius):
         self._blur_thread = Thread(target=self.gaussian_blur, args=(radius, ))
-        Clock.schedule_once(lambda dt: self._blur_thread.start(), .1)
+        if self._blur_thread.is_alive():
+            self._blur_thread.join()
+        else:
+            self._blur_thread.start()
 
     def prepare_texture(self, imfile):
         im = np.float32(cv.imread(imfile, -1)) / 255
